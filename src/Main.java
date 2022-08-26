@@ -1,66 +1,67 @@
 
 import java.awt.*;
+import java.rmi.server.ExportException;
+import java.util.Timer;
 
 
 public class Main {
     public static void main(String args[]) {
         int width = 1000;
         int height = 1000;
-        Color ln = new Color(255,0,0);
-        Canvas c = new Canvas(width,height, new Color(0,0,0));
-        Tetrahedron t1 = new Tetrahedron(new Vertex(1, 1, 5), 1.0);
-        t1.show();
-        Tetrahedron tri = new Tetrahedron(new Vertex(2,0,5), new Vertex(1,0,3), new Vertex(1.5,-0.5,4), new Vertex(1.5,-0.25,6));
-        tri.show();
-        /*
-        for (int i = 0; i < 100; i++) {
-            c.drawLine((int) (Math.random() * width), (int) (Math.random() * height), (int) (Math.random() * width), (int) (Math.random() * height), new Color((int) (Math.random()*255), (int) (Math.random()*255), (int) (Math.random()*255)));
+        Color ln = new Color(0,0,0);
+        new Canvas(width,height, new Color(255,255,255));
+        double[][] ico = new double[][]{{0.85065081,   0.52573111,     0.00000000,},
+                {0.85065081,-0.52573111,0.00000000},
+                {0.52573111,0.00000000,0.85065081},
+                {0.52573111,0.00000000,-0.85065081},
+                {0.00000000,0.85065081,0.52573111},
+                {0.00000000,0.85065081,-0.52573111},
+                {0.00000000,-0.85065081,0.52573111},
+                {0.00000000,-0.85065081,-0.52573111},
+                {-0.52573111,0.00000000,0.85065081},
+                {-0.52573111,0.00000000,-0.85065081},
+                {-0.85065081,0.52573111,0.00000000},
+                {-0.85065081,-0.52573111,0.00000000}};
+        double[][] cube = new double[][]{{-2, -0.5, 5},
+                {-2,  0.5, 5},
+                {-1,  0.5, 5},
+                {-1, -0.5, 5},
+                {-2, -0.5, 6},
+                {-2,  0.5, 6},
+                {-1,  0.5, 6},
+                {-1, -0.5, 6}};
+        for(int i = 0; i < ico.length; i++) {
+            ico[i][2] += 6;
+            ico[i][0] += 1;
         }
-        */
+        Polyhedron cube1 = new Polyhedron(doubleToVertex(cube), ln);
+        Polyhedron ico1 = new Polyhedron(doubleToVertex(ico), ln);
+        Graphics.polyhedra.add(cube1);
+        Graphics.polyhedra.add(ico1);
+        long startTime = System.currentTimeMillis();
 
-        //c.pixels = demo(width, height);
-        // The four "front" vertices
-        double[] vAf = {-2, -0.5, 5};
-        double[] vBf = {-2,  0.5, 5};
-        double[] vCf = {-1,  0.5, 5};
-        double[] vDf = {-1, -0.5, 5};
-
-// The four "back" vertices
-        double[] vAb = {-2, -0.5, 6};
-        double[] vBb = {-2,  0.5, 6};
-        double[] vCb = {-1,  0.5, 6};
-        double[] vDb = {-1, -0.5, 6};
-
-// The front face
-        c.drawLine2(ProjectVertex(vAf), ProjectVertex(vBf), ln);
-        c.drawLine2(ProjectVertex(vBf), ProjectVertex(vCf), ln);
-        c.drawLine2(ProjectVertex(vCf), ProjectVertex(vDf), ln);
-        c.drawLine2(ProjectVertex(vDf), ProjectVertex(vAf), ln);
-
-// The back face
-        c.drawLine2(ProjectVertex(vAb), ProjectVertex(vBb), ln);
-        c.drawLine2(ProjectVertex(vBb), ProjectVertex(vCb), ln);
-        c.drawLine2(ProjectVertex(vCb), ProjectVertex(vDb), ln);
-        c.drawLine2(ProjectVertex(vDb), ProjectVertex(vAb), ln);
-
-// The front-to-back edges
-        c.drawLine2(ProjectVertex(vAf), ProjectVertex(vAb), ln);
-        c.drawLine2(ProjectVertex(vBf), ProjectVertex(vBb), ln);
-        c.drawLine2(ProjectVertex(vCf), ProjectVertex(vCb), ln);
-        c.drawLine2(ProjectVertex(vDf), ProjectVertex(vDb), ln);
-
-
-
-        c.display();
-
-    }
-    public static int[] vtc(double x, double y) {
-        int[] r = {(int) (x * 1000),(int) (y * 1000)};
-        return r;
+        while (true) {
+            long currentTime = (System.currentTimeMillis() - startTime) / 1000;
+            if (currentTime % 3 <= 1) {
+                cube1.move(new Vertex(0, 0.01, 0));
+                ico1.move(new Vertex(0.01, 0, 0));
+            } else {
+                cube1.move(new Vertex(0, -0.02, 0));
+                ico1.move(new Vertex(-0.02, 0, 0));
+            }
+            ico1.show();
+            cube1.show();
+            Canvas.doFrame();
+        }
     }
 
-    public static int[] ProjectVertex(double[] cord) {
-        return vtc(cord[0] / cord[2], cord[1] / cord[2]);
+
+    public static Vertex[] doubleToVertex(double[][] coords) {
+        Vertex[] ret = new Vertex[coords.length];
+        for (int r = 0; r < coords.length; r++) {
+            ret[r] = new Vertex(coords[r][0], coords[r][1], coords[r][2]);
+        }
+        return ret;
     }
     //doesnt work
     private static int[][] demo(int w, int h) {
@@ -74,14 +75,4 @@ public class Main {
         }
         return ra;
     }
-    /*
-    public static BufferedImage getImageFromArray(int[] pixels, int width, int height) {
-        BufferedImage image = new BufferedImage(width, height,     BufferedImage.TYPE_INT_ARGB);
-        WritableRaster raster = (WritableRaster) image.getData();
-        raster.setPixels(0,0,width,height,pixels);
-        image.setData(raster);
-        return image;
-    }
-    */
-
 }

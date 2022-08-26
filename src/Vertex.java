@@ -13,6 +13,9 @@ public class Vertex {
         this.y = another.y;
         this.z = another.z;
     }
+    public boolean equals(Vertex another) {
+        return this.x == another.x && this.y == another.y && this.z == another.z;
+    }
 
     public String toString() {
         return x + " " + y + " " + z;
