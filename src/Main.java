@@ -1,11 +1,14 @@
 
 import java.awt.*;
 import java.rmi.server.ExportException;
+import java.util.ArrayList;
 import java.util.Timer;
 
 
 public class Main {
+    private static ArrayList<Polyhedron> onScreen = new ArrayList<>();
     public static void main(String args[]) {
+        //ArrayList<Polyhedron> onScreen = new ArrayList<>();
         int width = 1000;
         int height = 1000;
         Color ln = new Color(0,0,0);
@@ -22,6 +25,14 @@ public class Main {
                 {-0.52573111,0.00000000,-0.85065081},
                 {-0.85065081,0.52573111,0.00000000},
                 {-0.85065081,-0.52573111,0.00000000}};
+        double[][] octahedron = new double[][]{
+                {.5,2,6},
+                {-.5,3,6},
+                {-.5,2,7},
+                {-1.5,2,6},
+                {-.5,1,6},
+                {-.5,2,5}
+        };
         double[][] cube = new double[][]{{-2, -0.5, 5},
                 {-2,  0.5, 5},
                 {-1,  0.5, 5},
@@ -34,25 +45,40 @@ public class Main {
             ico[i][2] += 6;
             ico[i][0] += 1;
         }
-        Polyhedron cube1 = new Polyhedron(doubleToVertex(cube), ln);
-        Polyhedron ico1 = new Polyhedron(doubleToVertex(ico), ln);
-        Graphics.polyhedra.add(cube1);
-        Graphics.polyhedra.add(ico1);
+        add(cube);
+        add(ico);
+        add(octahedron);
         long startTime = System.currentTimeMillis();
 
         while (true) {
             long currentTime = (System.currentTimeMillis() - startTime) / 1000;
+
+            //movement
             if (currentTime % 3 <= 1) {
-                cube1.move(new Vertex(0, 0.01, 0));
-                ico1.move(new Vertex(0.01, 0, 0));
+                onScreen.get(0).move(new Vertex(0, 0.01, 0));
+                onScreen.get(1).move(new Vertex(0.01, 0, 0));
+                onScreen.get(2).move(new Vertex(0, 0, 0.01));
             } else {
-                cube1.move(new Vertex(0, -0.02, 0));
-                ico1.move(new Vertex(-0.02, 0, 0));
+                onScreen.get(0).move(new Vertex(0, -0.02, 0));
+                onScreen.get(1).move(new Vertex(-0.02, 0, 0));
+                onScreen.get(2).move(new Vertex(0, 0, -0.02));
             }
-            ico1.show();
-            cube1.show();
+
+
+            for (Polyhedron p : onScreen) {
+                p.show();
+            }
             Canvas.doFrame();
         }
+    }
+    public static void add(double[][] coords) {
+        Vertex[] vertices = new Vertex[coords.length];
+        for (int r=0; r < coords.length; r++) {
+            vertices[r] = new Vertex(coords[r][0], coords[r][1], coords[r][2]);
+        }
+        Polyhedron poly = new Polyhedron(vertices, new Color(0,0,0));
+        Graphics.polyhedra.add(poly);
+        onScreen.add(poly);
     }
 
 
